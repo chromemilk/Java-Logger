@@ -1,6 +1,8 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Logger {
     public enum Level {
@@ -12,17 +14,21 @@ public class Logger {
     }
 
 
-    private boolean should_group; // New field
+    private boolean should_group; 
+    private boolean exit_log;
 
-    public Logger(boolean should_group) { // New constructor
+    public Logger(boolean should_group, boolean exit_log) { 
         this.should_group = should_group;
+        this.exit_log = exit_log;
     }
 
     // Create a static array to store the log messages
-    private static final ArrayList<String> log_messages = new ArrayList<>();
 
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
+    private static final Map<LocalDateTime, String> log_messages = new TreeMap<>();
+
+    
     private static final String RESET = "\033[0m"; // Reset color to default
     private static final String YELLOW = "\033[0;33m"; // Yellow for "LOGGER:"
     private static final String GREEN = "\033[0;32m"; // Green for timestamp
@@ -62,8 +68,8 @@ public class Logger {
         System.out.println(color + formattedMessage + RESET);
         System.out.println("Log end\n-----------------");
 
-        // Add the log message to the array
-        //log_messages.add(formattedMessage);
+        // Add the log message to the array with their time and severity 
+        log_messages.put(now, " [" + level + "] " + formattedMessage);
     }
 
     public void debug(String message, Object... args) {
@@ -102,23 +108,33 @@ public class Logger {
     public void get_exception(Exception e) {
         error("Exception occurred: %s", e.getMessage());
     }
+
+    public void exit() {
+        System.out.println("Terminating logger...");
+        // If we should log the saved message array
+        if (exit_log) {
+            // Group FIRST by type, AND THEN by time
+            if (should_group) {
+                // Group by type
+                for (Level level : Level.values()) {
+                    System.out.println(level + " logs:");
+                    for (Map.Entry<LocalDateTime, String> entry : log_messages.entrySet()) {
+                        if (entry.getValue().contains("[" + level + "]")) {
+                            System.out.println(dtf.format(entry.getKey()) + entry.getValue());
+                        }
+                    }
+                }
+            } else {
+                // Print all logs
+                for (Map.Entry<LocalDateTime, String> entry : log_messages.entrySet()) {
+                    System.out.println(dtf.format(entry.getKey()) + entry.getValue());
+                }
+            }
+        }
+    }
     
     
 }
 
 // Example usage
-/*
- * public class Main {
- * public static void main(String[] args) {
- * Logger logger = new Logger();
- * 
- * // Example of logging static messages
- * logger.info("Example");
- * 
- * // Example of logging dynamic data
- * double armAngle = 54.2;
- * logger.info("The arm angle is [%.1f] degrees", armAngle);
- * }
- * }
- * 
- */
+// logger.info("The arm angle is [%.1f] degrees", armAngle);
