@@ -130,10 +130,14 @@ public class Logger {
                 }
             }
         }
+        else {
+            System.out.println("Exit logging disabled");
+            System.out.println("Unable to assert log messages");
+        }
     }
     
     public static void main(String[] args) {
-        Logger logger = new Logger(true, true);
+        Logger logger = new Logger(true, false);
         logger.debug("This is a debug message");
         logger.info("This is an info message");
         logger.warn("This is a warning message");
