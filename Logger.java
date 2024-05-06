@@ -92,7 +92,7 @@ public class Logger {
         dispatch_log(Level.FATAL, message, args);
     }
 
-    public void event_listener(Event event, Object... args) {
+    public void event(Event event, Object... args) {
         switch (event) {
             case BUTTON_PRESS:
                 info("Button pressed [%s]", args);
@@ -133,7 +133,17 @@ public class Logger {
         }
     }
     
-    
+    public static void main(String[] args) {
+        Logger logger = new Logger(true, true);
+        logger.debug("This is a debug message");
+        logger.info("This is an info message");
+        logger.warn("This is a warning message");
+        logger.error("This is an error message");
+        logger.fatal("This is a fatal message");
+        logger.event(Event.BUTTON_PRESS, "A");
+        logger.event(Event.MOTOR_SET_SPEED, 1.0);
+        logger.exit();
+    }
 }
 
 // Example usage
