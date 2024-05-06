@@ -1,10 +1,25 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class Logger {
     public enum Level {
         DEBUG, INFO, WARN, ERROR, FATAL
     }
+
+    public enum Event {
+        BUTTON_PRESS, MOTOR_SET_SPEED
+    }
+
+
+    private boolean should_group; // New field
+
+    public Logger(boolean should_group) { // New constructor
+        this.should_group = should_group;
+    }
+
+    // Create a static array to store the log messages
+    private static final ArrayList<String> log_messages = new ArrayList<>();
 
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
@@ -46,6 +61,9 @@ public class Logger {
         System.out.println(GREEN + formattedTime + RESET);
         System.out.println(color + formattedMessage + RESET);
         System.out.println("Log end\n-----------------");
+
+        // Add the log message to the array
+        //log_messages.add(formattedMessage);
     }
 
     public void debug(String message, Object... args) {
@@ -67,6 +85,25 @@ public class Logger {
     public void fatal(String message, Object... args) {
         dispatch_log(Level.FATAL, message, args);
     }
+
+    public void event_listener(Event event, Object... args) {
+        switch (event) {
+            case BUTTON_PRESS:
+                info("Button pressed [%s]", args);
+                break;
+            case MOTOR_SET_SPEED:
+                info("Motor speed set [%.1f]", args);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void get_exception(Exception e) {
+        error("Exception occurred: %s", e.getMessage());
+    }
+    
+    
 }
 
 // Example usage
